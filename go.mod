@@ -1,4 +1,4 @@
-module github.com/filecoin-project/boost
+module github.com/statechannels/boost
 
 go 1.19
 
