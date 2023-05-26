@@ -25,6 +25,7 @@ import (
 	"github.com/filecoin-project/lotus/markets/dagstore"
 	"github.com/ipfs/go-cid"
 	"github.com/mitchellh/go-homedir"
+	"github.com/statechannels/go-nitro/rpc"
 	"github.com/urfave/cli/v2"
 )
 
@@ -152,6 +153,13 @@ var runCmd = &cli.Command{
 			return fmt.Errorf("parsing storage API endpoint: %w", err)
 		}
 
+		// Connect to nitro payments API
+		nitroApiInfo := cctx.String("api-nitro")
+		if err != nil {
+			return fmt.Errorf("parsing storage API endpoint: %w", err)
+		}
+		nitroClient, err := rpc.NewHttpRpcClient(nitroApiInfo)
+
 		// Instantiate the tracer and exporter
 		enableTracing := cctx.Bool("tracing")
 		var tracingStopper func(context.Context) error
@@ -211,6 +219,7 @@ var runCmd = &cli.Command{
 			cctx.Int("port"),
 			sapi,
 			opts,
+			nitroClient,
 		)
 
 		// Start the server

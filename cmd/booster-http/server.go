@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net"
 	"net/http"
 	"strings"
@@ -25,6 +26,8 @@ import (
 	"github.com/ipfs/go-datastore"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	offline "github.com/ipfs/go-ipfs-exchange-offline"
+	"github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
 	"go.opencensus.io/stats"
 )
 
@@ -52,6 +55,8 @@ type HttpServer struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	server *http.Server
+
+	nitroClient *rpc.RpcClient
 }
 
 type HttpServerApi interface {
@@ -66,11 +71,11 @@ type HttpServerOptions struct {
 	SupportedResponseFormats []string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions) *HttpServer {
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroClient *rpc.RpcClient) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	return &HttpServer{path: path, listenAddr: listenAddr, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts)}
+	return &HttpServer{path: path, listenAddr: listenAddr, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroClient: nitroClient}
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -162,6 +167,16 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusBadRequest, msg)
 		stats.Record(ctx, metrics.HttpPieceByCid400ResponseCount.M(1))
 		return
+	}
+
+	// TODO we need to get a payment "key" from the request, which we can use to query our go-nitro node with. It's just stubbed out here for now.
+	paymentInfo := s.nitroClient.GetVirtualChannel(types.Destination{})
+
+	if paymentInfo.Balance.PaidSoFar.ToInt().Cmp(big.NewInt(0)) < 0 { // TODO we need to compare against some "going rate" or agreed-upon price for the retrieval
+		panic("this retrieval has not been paid for!") // TODO we need to gracefully deal with not having sufficient payments
+	} else {
+		// TODO we need to "retire" the payments we have received to avoid double counting. A subsequent retrieval should fail if it isn't paid for again
+		// (depending on the payment model, but this seems important)
 	}
 
 	// Get a reader over the piece
