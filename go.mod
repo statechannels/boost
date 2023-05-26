@@ -14,6 +14,8 @@ replace github.com/filecoin-project/boostd-data => ./extern/boostd-data
 
 // replace github.com/filecoin-project/boost-gfm => ../boost-gfm
 
+replace github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 => github.com/glifio/go-secp256k1 v0.0.1
+
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0
 	github.com/BurntSushi/toml v1.2.1
