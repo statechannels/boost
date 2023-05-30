@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/filecoin-project/boost-gfm/piecestore"
 	"github.com/filecoin-project/boost/api"
 	bclient "github.com/filecoin-project/boost/api/client"
@@ -33,6 +34,22 @@ var runCmd = &cli.Command{
 	Usage:  "Start a booster-http process",
 	Before: before,
 	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "nitro-enabled",
+			Usage: "enables nitro micro payments",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:  "nitro-endpoint",
+			Usage: "the endpoint for the nitro server",
+			Value: "127.0.0.1:4007",
+		},
+		&cli.StringFlag{
+			Name:  "nitro-address",
+			Usage: "the address for the nitro server",
+			Value: "0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94",
+		},
+
 		&cli.BoolFlag{
 			Name:  "pprof",
 			Usage: "run pprof web server on localhost:6070",
@@ -204,6 +221,13 @@ var runCmd = &cli.Command{
 			filtered := filters.NewFilteredBlockstore(rbs, multiFilter)
 			opts.Blockstore = filtered
 		}
+
+		nitroOpts := &NitroOptions{
+			Enabled:  cctx.Bool("nitro-enabled"),
+			Endpoint: cctx.String("nitro-endpoint"),
+			Address:  common.HexToAddress(cctx.String("nitro-address")),
+		}
+
 		sapi := serverApi{ctx: ctx, bapi: bapi, sa: sa}
 		server := NewHttpServer(
 			cctx.String("base-path"),
@@ -211,6 +235,7 @@ var runCmd = &cli.Command{
 			cctx.Int("port"),
 			sapi,
 			opts,
+			nitroOpts,
 		)
 
 		// Start the server

@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/NYTimes/gziphandler"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/fatih/color"
 	"github.com/filecoin-project/boost-gfm/piecestore"
 	"github.com/filecoin-project/boost-gfm/retrievalmarket"
@@ -25,6 +28,8 @@ import (
 	"github.com/ipfs/go-datastore"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	offline "github.com/ipfs/go-ipfs-exchange-offline"
+	nrpc "github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
 	"go.opencensus.io/stats"
 )
 
@@ -52,6 +57,8 @@ type HttpServer struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	server *http.Server
+
+	nitroRpcClient *nrpc.RpcClient
 }
 
 type HttpServerApi interface {
@@ -66,11 +73,27 @@ type HttpServerOptions struct {
 	SupportedResponseFormats []string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions) *HttpServer {
+type NitroOptions struct {
+	Enabled  bool
+	Endpoint string
+	Address  common.Address
+}
+
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	return &HttpServer{path: path, listenAddr: listenAddr, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts)}
+	var rpcClient *nrpc.RpcClient
+	var err error
+	if nitroOpts.Enabled {
+
+		rpcClient, err = CreateNitroClient(nitroOpts.Endpoint, nitroOpts.Address)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
+
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -155,6 +178,7 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Update to parse out multiple url params
 	pieceCidStr := r.URL.Path[prefixLen:]
 	pieceCid, err := cid.Parse(pieceCidStr)
 	if err != nil {
@@ -164,6 +188,19 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	params, _ := url.ParseQuery(r.URL.RawQuery)
+	rawChId := params.Get("channelId")
+	fmt.Println(rawChId)
+	waitOn := types.Destination(common.HexToHash(rawChId))
+	fmt.Println(waitOn.String())
+	expectedPaymentAmount := big.NewInt(10)
+	paid := checkPaymentChannelBalance(s.nitroRpcClient, waitOn, expectedPaymentAmount)
+	fmt.Printf("Paid: %v\n", paid)
+	if !paid {
+		writeError(w, r, http.StatusPaymentRequired, "payment required")
+
+		return
+	}
 	// Get a reader over the piece
 	content, err := s.getPieceContent(ctx, pieceCid)
 	if err != nil {
