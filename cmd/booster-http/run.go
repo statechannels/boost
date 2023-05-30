@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/filecoin-project/boost-gfm/piecestore"
 	"github.com/filecoin-project/boost/api"
 	bclient "github.com/filecoin-project/boost/api/client"
@@ -43,11 +42,6 @@ var runCmd = &cli.Command{
 			Name:  "nitro-endpoint",
 			Usage: "the endpoint for the nitro server",
 			Value: "127.0.0.1:4007",
-		},
-		&cli.StringFlag{
-			Name:  "nitro-address",
-			Usage: "the address for the nitro server",
-			Value: "0xBBB676f9cFF8D242e9eaC39D063848807d3D1D94",
 		},
 
 		&cli.BoolFlag{
@@ -225,7 +219,6 @@ var runCmd = &cli.Command{
 		nitroOpts := &NitroOptions{
 			Enabled:  cctx.Bool("nitro-enabled"),
 			Endpoint: cctx.String("nitro-endpoint"),
-			Address:  common.HexToAddress(cctx.String("nitro-address")),
 		}
 
 		sapi := serverApi{ctx: ctx, bapi: bapi, sa: sa}

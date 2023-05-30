@@ -76,7 +76,6 @@ type HttpServerOptions struct {
 type NitroOptions struct {
 	Enabled  bool
 	Endpoint string
-	Address  common.Address
 }
 
 func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
@@ -85,9 +84,9 @@ func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, 
 	}
 	var rpcClient *nrpc.RpcClient
 	var err error
-	if nitroOpts.Enabled {
+	if nitroOpts != nil && nitroOpts.Enabled {
 
-		rpcClient, err = CreateNitroClient(nitroOpts.Endpoint, nitroOpts.Address)
+		rpcClient, err = nrpc.NewHttpRpcClient(nitroOpts.Endpoint)
 		if err != nil {
 			panic(err)
 		}
