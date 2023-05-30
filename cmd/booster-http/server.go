@@ -188,18 +188,17 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params, _ := url.ParseQuery(r.URL.RawQuery)
-	rawChId := params.Get("channelId")
-	fmt.Println(rawChId)
-	waitOn := types.Destination(common.HexToHash(rawChId))
-	fmt.Println(waitOn.String())
-	expectedPaymentAmount := big.NewInt(10)
-	paid := checkPaymentChannelBalance(s.nitroRpcClient, waitOn, expectedPaymentAmount)
-	fmt.Printf("Paid: %v\n", paid)
-	if !paid {
-		writeError(w, r, http.StatusPaymentRequired, "payment required")
+	if s.nitroRpcClient != nil {
+		params, _ := url.ParseQuery(r.URL.RawQuery)
+		rawChId := params.Get("channelId")
+		chId := types.Destination(common.HexToHash(rawChId))
+		// TODO: Allow this to be configurable
+		expectedPaymentAmount := big.NewInt(10)
 
-		return
+		if hasPaid := checkPaymentChannelBalance(s.nitroRpcClient, chId, expectedPaymentAmount); !hasPaid {
+			writeError(w, r, http.StatusPaymentRequired, "payment required")
+			return
+		}
 	}
 	// Get a reader over the piece
 	content, err := s.getPieceContent(ctx, pieceCid)

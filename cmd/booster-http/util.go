@@ -49,6 +49,9 @@ func CreateNitroClient(
 
 // checkPaymentChannelBalance checks a payment channel balance and returns true if the AmountPaid is greater than the expected amount
 func checkPaymentChannelBalance(rpcClient *rpc.RpcClient, paymentChannelId types.Destination, expectedAmount *big.Int) bool {
+	if rpcClient == nil {
+		panic("the rpcClient is nil")
+	}
 	payCh := rpcClient.GetVirtualChannel(paymentChannelId)
 	return payCh.Balance.PaidSoFar.ToInt().Cmp(expectedAmount) > 0
 
