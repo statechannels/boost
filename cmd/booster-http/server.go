@@ -117,7 +117,7 @@ func (s *HttpServer) Start(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("creating blocks gateway: %w", err)
 		}
-		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats))
+		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats, s.nitroRpcClient))
 	}
 
 	handler.HandleFunc("/", s.handleIndex)
@@ -191,6 +191,9 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		params, _ := url.ParseQuery(r.URL.RawQuery)
 		rawChId := params.Get("channelId")
 		chId := types.Destination(common.HexToHash(rawChId))
+		if (chId == types.Destination{}) {
+			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
+		}
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
 
