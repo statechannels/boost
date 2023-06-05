@@ -189,10 +189,16 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 
 	if s.nitroRpcClient != nil {
 		params, _ := url.ParseQuery(r.URL.RawQuery)
+		if !params.Has("channelId") {
+			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
+			return
+		}
 		rawChId := params.Get("channelId")
 		chId := types.Destination(common.HexToHash(rawChId))
+
 		if (chId == types.Destination{}) {
 			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
+			return
 		}
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
