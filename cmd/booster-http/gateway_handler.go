@@ -29,8 +29,9 @@ func newGatewayHandler(gw *BlocksGateway, supportedFormats []string, nitroRpcCli
 		fmtsMap[f] = struct{}{}
 	}
 
+	// TODO: For the integration demo, we need to allow CORS requests to the gateway.
 	return &gatewayHandler{
-		gwh:              gateway.NewHandler(gateway.Config{Headers: headers}, gw),
+		gwh:              &corsHandler{gateway.NewHandler(gateway.Config{Headers: headers}, gw)},
 		supportedFormats: fmtsMap,
 		nitroRpcClient:   nitroRpcClient,
 	}
@@ -78,6 +79,10 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func webError(w http.ResponseWriter, err error, code int) {
+	// TODO: This is a hack to allow CORS requests to the gateway for the boost integration demo.
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	fmt.Printf("ERROR CODE %d\n", code)
 	http.Error(w, err.Error(), code)
 }
 
