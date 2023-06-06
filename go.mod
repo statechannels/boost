@@ -16,6 +16,8 @@ replace github.com/filecoin-project/boostd-data => ./extern/boostd-data
 
 replace github.com/ipsn/go-secp256k1 v0.0.0-20180726113642-9d62b9f0bc52 => github.com/glifio/go-secp256k1 v0.0.1
 
+replace github.com/libp2p/go-libp2p v0.27.0 => github.com/libp2p/go-libp2p v0.26.2
+
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0
 	github.com/BurntSushi/toml v1.2.1
@@ -83,7 +85,7 @@ require (
 	github.com/jbenet/go-random v0.0.0-20190219211222-123a90aedc0c
 	github.com/jpillora/backoff v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/libp2p/go-libp2p v0.26.2
+	github.com/libp2p/go-libp2p v0.27.0
 	github.com/libp2p/go-libp2p-gostream v0.6.0
 	github.com/libp2p/go-libp2p-http v0.4.0
 	github.com/libp2p/go-libp2p-kad-dht v0.21.0
@@ -354,8 +356,7 @@ require (
 	github.com/filecoin-project/boost-graphsync v0.13.6
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc4
 	github.com/ipfs/kubo v0.18.1
-	github.com/rs/zerolog v1.28.0
-	github.com/statechannels/go-nitro v0.0.0-20230530202033-ed29bec1a9ef
+	github.com/statechannels/go-nitro v0.0.0-20230605135640-5b8c876d3463
 )
 
 require (
@@ -381,13 +382,6 @@ require (
 	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/libp2p/zeroconf/v2 v2.2.0 // indirect
-	github.com/minio/highwayhash v1.0.2 // indirect
-	github.com/nats-io/jwt/v2 v2.3.0 // indirect
-	github.com/nats-io/nats-server/v2 v2.9.10 // indirect
-	github.com/nats-io/nats.go v1.21.0 // indirect
-	github.com/nats-io/nkeys v0.3.0 // indirect
-	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
@@ -397,6 +391,7 @@ require (
 	github.com/quic-go/webtransport-go v0.5.2 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/status-im/keycard-go v0.2.0 // indirect
 	github.com/tidwall/btree v1.6.0 // indirect
 	github.com/tidwall/buntdb v1.2.10 // indirect
