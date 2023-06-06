@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/big"
+	"net/http"
 
 	"github.com/statechannels/go-nitro/rpc"
 	"github.com/statechannels/go-nitro/types"
@@ -24,4 +25,20 @@ func checkPaymentChannelBalance(rpcClient *rpc.RpcClient, paymentChannelId types
 	payCh := rpcClient.GetVirtualChannel(paymentChannelId)
 	return payCh.Balance.PaidSoFar.ToInt().Cmp(expectedAmount) > 0
 
+}
+
+type corsHandler struct {
+	sub http.Handler
+}
+
+func (h *corsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	if r.Method == "OPTIONS" {
+		_, _ = w.Write([]byte("OK"))
+		return
+	}
+
+	h.sub.ServeHTTP(w, r)
 }
