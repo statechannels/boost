@@ -2,18 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/ipfs/go-libipfs/gateway"
+	"math/big"
 	"mime"
 	"net/http"
+	"net/url"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ipfs/go-libipfs/gateway"
+	"github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
 )
 
 type gatewayHandler struct {
 	gwh              http.Handler
 	supportedFormats map[string]struct{}
+	nitroRpcClient   *rpc.RpcClient
 }
 
-func newGatewayHandler(gw *BlocksGateway, supportedFormats []string) http.Handler {
+func newGatewayHandler(gw *BlocksGateway, supportedFormats []string, nitroRpcClient *rpc.RpcClient) http.Handler {
 	headers := map[string][]string{}
 	gateway.AddAccessControlHeaders(headers)
 
@@ -22,9 +29,11 @@ func newGatewayHandler(gw *BlocksGateway, supportedFormats []string) http.Handle
 		fmtsMap[f] = struct{}{}
 	}
 
+	// TODO: For the integration demo, we need to allow CORS requests to the gateway.
 	return &gatewayHandler{
-		gwh:              gateway.NewHandler(gateway.Config{Headers: headers}, gw),
+		gwh:              &corsHandler{gateway.NewHandler(gateway.Config{Headers: headers}, gw)},
 		supportedFormats: fmtsMap,
+		nitroRpcClient:   nitroRpcClient,
 	}
 }
 
@@ -43,10 +52,37 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.nitroRpcClient != nil {
+
+		params, _ := url.ParseQuery(r.URL.RawQuery)
+		if !params.Has("channelId") {
+			webError(w, fmt.Errorf("a valid channel id must be provided"), http.StatusPaymentRequired)
+			return
+		}
+		rawChId := params.Get("channelId")
+
+		chId := types.Destination(common.HexToHash(rawChId))
+		if (chId == types.Destination{} || chId.IsZero()) {
+			webError(w, fmt.Errorf("a valid channel id must be provided"), http.StatusPaymentRequired)
+			return
+		}
+		// TODO: Allow this to be configurable
+		expectedPaymentAmount := big.NewInt(10)
+
+		if hasPaid := checkPaymentChannelBalance(h.nitroRpcClient, chId, expectedPaymentAmount); !hasPaid {
+			webError(w, fmt.Errorf("payment of %d required", expectedPaymentAmount.Uint64()), http.StatusPaymentRequired)
+			return
+		}
+	}
+
 	h.gwh.ServeHTTP(w, r)
 }
 
 func webError(w http.ResponseWriter, err error, code int) {
+	// TODO: This is a hack to allow CORS requests to the gateway for the boost integration demo.
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	fmt.Printf("ERROR CODE %d\n", code)
 	http.Error(w, err.Error(), code)
 }
 

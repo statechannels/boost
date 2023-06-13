@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/NYTimes/gziphandler"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/fatih/color"
 	"github.com/filecoin-project/boost-gfm/piecestore"
 	"github.com/filecoin-project/boost-gfm/retrievalmarket"
@@ -25,6 +28,8 @@ import (
 	"github.com/ipfs/go-datastore"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	offline "github.com/ipfs/go-ipfs-exchange-offline"
+	nrpc "github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
 	"go.opencensus.io/stats"
 )
 
@@ -52,6 +57,8 @@ type HttpServer struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	server *http.Server
+
+	nitroRpcClient *nrpc.RpcClient
 }
 
 type HttpServerApi interface {
@@ -66,11 +73,26 @@ type HttpServerOptions struct {
 	SupportedResponseFormats []string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions) *HttpServer {
+type NitroOptions struct {
+	Enabled  bool
+	Endpoint string
+}
+
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	return &HttpServer{path: path, listenAddr: listenAddr, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts)}
+	var rpcClient *nrpc.RpcClient
+	var err error
+	if nitroOpts != nil && nitroOpts.Enabled {
+
+		rpcClient, err = nrpc.NewHttpRpcClient(nitroOpts.Endpoint)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
+
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -95,7 +117,7 @@ func (s *HttpServer) Start(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("creating blocks gateway: %w", err)
 		}
-		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats))
+		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats, s.nitroRpcClient))
 	}
 
 	handler.HandleFunc("/", s.handleIndex)
@@ -155,6 +177,7 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Update to parse out multiple url params
 	pieceCidStr := r.URL.Path[prefixLen:]
 	pieceCid, err := cid.Parse(pieceCidStr)
 	if err != nil {
@@ -164,6 +187,27 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if s.nitroRpcClient != nil {
+		params, _ := url.ParseQuery(r.URL.RawQuery)
+		if !params.Has("channelId") {
+			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
+			return
+		}
+		rawChId := params.Get("channelId")
+		chId := types.Destination(common.HexToHash(rawChId))
+
+		if (chId == types.Destination{}) {
+			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
+			return
+		}
+		// TODO: Allow this to be configurable
+		expectedPaymentAmount := big.NewInt(10)
+
+		if hasPaid := checkPaymentChannelBalance(s.nitroRpcClient, chId, expectedPaymentAmount); !hasPaid {
+			writeError(w, r, http.StatusPaymentRequired, "payment required")
+			return
+		}
+	}
 	// Get a reader over the piece
 	content, err := s.getPieceContent(ctx, pieceCid)
 	if err != nil {
