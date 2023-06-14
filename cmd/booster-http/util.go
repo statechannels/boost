@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"errors"
 	"math/big"
 	"net/http"
 
@@ -18,13 +19,12 @@ func addCommas(count uint64) string {
 }
 
 // checkPaymentChannelBalance checks a payment channel balance and returns true if the AmountPaid is greater than the expected amount
-func checkPaymentChannelBalance(rpcClient *rpc.RpcClient, paymentChannelId types.Destination, expectedAmount *big.Int) bool {
+func checkPaymentChannelBalance(rpcClient *rpc.RpcClient, paymentChannelId types.Destination, expectedAmount *big.Int) (bool, error) {
 	if rpcClient == nil {
-		panic("the rpcClient is nil")
+		return false, errors.New("the rpcClient is nil")
 	}
 	payCh := rpcClient.GetVirtualChannel(paymentChannelId)
-	return payCh.Balance.PaidSoFar.ToInt().Cmp(expectedAmount) > 0
-
+	return (payCh.Balance.PaidSoFar.ToInt().Cmp(expectedAmount) > 0), nil
 }
 
 type corsHandler struct {

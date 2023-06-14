@@ -69,7 +69,13 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
 
-		if hasPaid := checkPaymentChannelBalance(h.nitroRpcClient, chId, expectedPaymentAmount); !hasPaid {
+		hasPaid, err := checkPaymentChannelBalance(h.nitroRpcClient, chId, expectedPaymentAmount)
+		if err != nil {
+			webError(w, err, http.StatusPaymentRequired)
+			return
+		}
+
+		if !hasPaid {
 			webError(w, fmt.Errorf("payment of %d required", expectedPaymentAmount.Uint64()), http.StatusPaymentRequired)
 			return
 		}
