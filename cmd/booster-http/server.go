@@ -210,7 +210,7 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !hasPaid {
-			webError(w, fmt.Errorf("payment of %d required", expectedPaymentAmount.Uint64()), http.StatusPaymentRequired)
+			writeError(w, r, http.StatusPaymentRequired, fmt.Sprintf("payment of %d required", expectedPaymentAmount.Uint64()))
 			return
 		}
 	}
