@@ -203,8 +203,14 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
 
-		if hasPaid := checkPaymentChannelBalance(s.nitroRpcClient, chId, expectedPaymentAmount); !hasPaid {
-			writeError(w, r, http.StatusPaymentRequired, "payment required")
+		hasPaid, err := checkPaymentChannelBalance(s.nitroRpcClient, chId, expectedPaymentAmount)
+		if err != nil {
+			writeError(w, r, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		if !hasPaid {
+			writeError(w, r, http.StatusPaymentRequired, fmt.Sprintf("payment of %d required", expectedPaymentAmount.Uint64()))
 			return
 		}
 	}
