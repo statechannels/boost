@@ -123,19 +123,19 @@ services:
       - "com.docker-tc.limit=1mbps"
       - "com.docker-tc.delay=100ms"
 
-  tc:
-    image: "${DOCKER_IMAGE_TERMINAL:-lukaszlach/docker-tc}"
-    container_name: docker-tc
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/docker-tc:/var/docker-tc
-    deploy:
-      mode: global
-      restart_policy:
-        condition: any
-    environment:
-      HTTP_BIND: "${HTTP_BIND:-127.0.0.1}"
-      HTTP_PORT: "${HTTP_PORT:-4080}"
-    network_mode: host
+  # tc:
+  #   image: "${DOCKER_IMAGE_TERMINAL:-lukaszlach/docker-tc}"
+  #   container_name: docker-tc
+  #   cap_add:
+  #     - NET_ADMIN
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /var/docker-tc:/var/docker-tc
+  #   deploy:
+  #     mode: global
+  #     restart_policy:
+  #       condition: any
+  #   environment:
+  #     HTTP_BIND: "${HTTP_BIND:-127.0.0.1}"
+  #     HTTP_PORT: "${HTTP_PORT:-4080}"
+  #   network_mode: host
