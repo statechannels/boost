@@ -356,7 +356,7 @@ require (
 	github.com/filecoin-project/boost-graphsync v0.13.6
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc4
 	github.com/ipfs/kubo v0.18.1
-	github.com/statechannels/go-nitro v0.0.0-20230605135640-5b8c876d3463
+	github.com/statechannels/go-nitro v0.0.0-20230621200904-bfeff118bbbb
 )
 
 require (
@@ -382,6 +382,13 @@ require (
 	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/libp2p/zeroconf/v2 v2.2.0 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
+	github.com/nats-io/jwt/v2 v2.3.0 // indirect
+	github.com/nats-io/nats-server/v2 v2.9.10 // indirect
+	github.com/nats-io/nats.go v1.21.0 // indirect
+	github.com/nats-io/nkeys v0.3.0 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
