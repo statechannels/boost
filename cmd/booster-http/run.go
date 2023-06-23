@@ -41,7 +41,7 @@ var runCmd = &cli.Command{
 		&cli.StringFlag{
 			Name:  "nitro-endpoint",
 			Usage: "the endpoint for the nitro server",
-			Value: "127.0.0.1:4007",
+			Value: "127.0.0.1:4007/api/v1",
 		},
 
 		&cli.BoolFlag{
