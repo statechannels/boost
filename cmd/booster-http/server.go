@@ -196,10 +196,6 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		rawChId := params.Get("channelId")
 		chId := types.Destination(common.HexToHash(rawChId))
 
-		if (chId == types.Destination{}) {
-			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
-			return
-		}
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
 
