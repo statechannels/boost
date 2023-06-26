@@ -62,10 +62,7 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rawChId := params.Get("channelId")
 
 		chId := types.Destination(common.HexToHash(rawChId))
-		if (chId == types.Destination{} || chId.IsZero()) {
-			webError(w, fmt.Errorf("a valid channel id must be provided"), http.StatusPaymentRequired)
-			return
-		}
+
 		// TODO: Allow this to be configurable
 		expectedPaymentAmount := big.NewInt(10)
 
