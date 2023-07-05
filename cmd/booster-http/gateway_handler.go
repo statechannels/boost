@@ -9,7 +9,10 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ipfs/go-libipfs/gateway"
+	"github.com/statechannels/go-nitro/crypto"
+	"github.com/statechannels/go-nitro/payments"
 	"github.com/statechannels/go-nitro/rpc"
 	"github.com/statechannels/go-nitro/types"
 )
@@ -60,23 +63,30 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		rawChId := params.Get("channelId")
+		rawAmt := params.Get("amount")
+		amount := big.NewInt(0)
+		amount.SetString(rawAmt, 10)
+		rawSignature := params.Get("signature")
 
-		chId := types.Destination(common.HexToHash(rawChId))
-		if (chId == types.Destination{} || chId.IsZero()) {
-			webError(w, fmt.Errorf("a valid channel id must be provided"), http.StatusPaymentRequired)
-			return
-		}
-		// TODO: Allow this to be configurable
-		expectedPaymentAmount := big.NewInt(10)
-
-		hasPaid, err := checkPaymentChannelBalance(h.nitroRpcClient, chId, expectedPaymentAmount)
-		if err != nil {
-			webError(w, err, http.StatusPaymentRequired)
-			return
+		v := payments.Voucher{
+			ChannelId: types.Destination(common.HexToHash(rawChId)),
+			Amount:    amount,
+			Signature: crypto.SplitSignature(hexutil.MustDecode(rawSignature)),
 		}
 
-		if !hasPaid {
-			webError(w, fmt.Errorf("payment of %d required", expectedPaymentAmount.Uint64()), http.StatusPaymentRequired)
+		fmt.Printf("Constructed voucher %+v\n", v)
+		_, received := h.nitroRpcClient.ReceiveVoucher(v)
+		fmt.Printf("Received %+v\n", received)
+		const expectedAmount = int64(100)
+		// TODO: It seems like the delta is coming back nil??
+		if received == nil {
+			webError(w, fmt.Errorf("nil received"), http.StatusPaymentRequired)
+			return
+		}
+
+		if received.Cmp(big.NewInt(expectedAmount)) < 0 {
+
+			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedAmount, received.Uint64()), http.StatusPaymentRequired)
 			return
 		}
 	}
