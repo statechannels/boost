@@ -6,15 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math/big"
 	"net"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/fatih/color"
 	"github.com/filecoin-project/boost-gfm/piecestore"
 	"github.com/filecoin-project/boost-gfm/retrievalmarket"
@@ -29,7 +26,6 @@ import (
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	offline "github.com/ipfs/go-ipfs-exchange-offline"
 	nrpc "github.com/statechannels/go-nitro/rpc"
-	"github.com/statechannels/go-nitro/types"
 	"go.opencensus.io/stats"
 )
 
@@ -187,33 +183,6 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if s.nitroRpcClient != nil {
-		params, _ := url.ParseQuery(r.URL.RawQuery)
-		if !params.Has("channelId") {
-			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
-			return
-		}
-		rawChId := params.Get("channelId")
-		chId := types.Destination(common.HexToHash(rawChId))
-
-		if (chId == types.Destination{}) {
-			writeError(w, r, http.StatusPaymentRequired, "a valid channel id must be provided")
-			return
-		}
-		// TODO: Allow this to be configurable
-		expectedPaymentAmount := big.NewInt(10)
-
-		hasPaid, err := checkPaymentChannelBalance(s.nitroRpcClient, chId, expectedPaymentAmount)
-		if err != nil {
-			writeError(w, r, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		if !hasPaid {
-			writeError(w, r, http.StatusPaymentRequired, fmt.Sprintf("payment of %d required", expectedPaymentAmount.Uint64()))
-			return
-		}
-	}
 	// Get a reader over the piece
 	content, err := s.getPieceContent(ctx, pieceCid)
 	if err != nil {
