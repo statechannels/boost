@@ -20,7 +20,7 @@ replace github.com/libp2p/go-libp2p v0.27.0 => github.com/libp2p/go-libp2p v0.26
 
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0
-	github.com/BurntSushi/toml v1.2.1
+	github.com/BurntSushi/toml v1.3.2
 	github.com/alecthomas/jsonschema v0.0.0-20200530073317-71f438968921
 	github.com/benbjohnson/clock v1.3.0
 	github.com/buger/goterm v1.0.3
@@ -356,7 +356,7 @@ require (
 	github.com/filecoin-project/boost-graphsync v0.13.6
 	github.com/filecoin-project/go-data-transfer/v2 v2.0.0-rc4
 	github.com/ipfs/kubo v0.18.1
-	github.com/statechannels/go-nitro v0.0.0-20230621200904-bfeff118bbbb
+	github.com/statechannels/go-nitro v0.0.0-20230705204505-e2222da8b9e8
 )
 
 require (
@@ -382,13 +382,6 @@ require (
 	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/libp2p/zeroconf/v2 v2.2.0 // indirect
-	github.com/minio/highwayhash v1.0.2 // indirect
-	github.com/nats-io/jwt/v2 v2.3.0 // indirect
-	github.com/nats-io/nats-server/v2 v2.9.10 // indirect
-	github.com/nats-io/nats.go v1.21.0 // indirect
-	github.com/nats-io/nkeys v0.3.0 // indirect
-	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/ginkgo/v2 v2.9.2 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
