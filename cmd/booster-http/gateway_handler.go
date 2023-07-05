@@ -2,15 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ipfs/boxo/gateway"
-	"github.com/statechannels/go-nitro/rpc"
-	"github.com/statechannels/go-nitro/types"
 	"math/big"
 	"mime"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ipfs/boxo/gateway"
+	"github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
+
+	"github.com/statechannels/go-nitro/crypto"
+	"github.com/statechannels/go-nitro/payments"
 )
 
 type gatewayHandler struct {
@@ -59,20 +65,30 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		rawChId := params.Get("channelId")
+		rawAmt := params.Get("amount")
+		amount := big.NewInt(0)
+		amount.SetString(rawAmt, 10)
+		rawSignature := params.Get("signature")
 
-		chId := types.Destination(common.HexToHash(rawChId))
+		v := payments.Voucher{
+			ChannelId: types.Destination(common.HexToHash(rawChId)),
+			Amount:    amount,
+			Signature: crypto.SplitSignature(hexutil.MustDecode(rawSignature)),
+		}
 
-		// TODO: Allow this to be configurable
-		expectedPaymentAmount := big.NewInt(10)
-
-		hasPaid, err := checkPaymentChannelBalance(h.nitroRpcClient, chId, expectedPaymentAmount)
-		if err != nil {
-			webError(w, err, http.StatusPaymentRequired)
+		fmt.Printf("Constructed voucher %+v\n", v)
+		_, received := h.nitroRpcClient.ReceiveVoucher(v)
+		fmt.Printf("Received %+v\n", received)
+		const expectedAmount = int64(100)
+		// TODO: It seems like the delta is coming back nil??
+		if received == nil {
+			webError(w, fmt.Errorf("nil received"), http.StatusPaymentRequired)
 			return
 		}
 
-		if !hasPaid {
-			webError(w, fmt.Errorf("payment of %d required", expectedPaymentAmount.Uint64()), http.StatusPaymentRequired)
+		if received.Cmp(big.NewInt(expectedAmount)) < 0 {
+
+			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedAmount, received.Uint64()), http.StatusPaymentRequired)
 			return
 		}
 	}
