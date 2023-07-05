@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ipfs/boxo/gateway"
+	"github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
 	"math/big"
 	"mime"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ipfs/go-libipfs/gateway"
-	"github.com/statechannels/go-nitro/rpc"
-	"github.com/statechannels/go-nitro/types"
 )
 
 type gatewayHandler struct {
@@ -20,7 +19,7 @@ type gatewayHandler struct {
 	nitroRpcClient   *rpc.RpcClient
 }
 
-func newGatewayHandler(gw *BlocksGateway, supportedFormats []string, nitroRpcClient *rpc.RpcClient) http.Handler {
+func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string, nitroRpcClient *rpc.RpcClient) http.Handler {
 	headers := map[string][]string{}
 	gateway.AddAccessControlHeaders(headers)
 
@@ -31,7 +30,7 @@ func newGatewayHandler(gw *BlocksGateway, supportedFormats []string, nitroRpcCli
 
 	// TODO: For the integration demo, we need to allow CORS requests to the gateway.
 	return &gatewayHandler{
-		gwh:              &corsHandler{gateway.NewHandler(gateway.Config{Headers: headers}, gw)},
+		gwh:              &corsHandler{gateway.NewHandler(gateway.Config{Headers: headers, DeserializedResponses: true}, gw)},
 		supportedFormats: fmtsMap,
 		nitroRpcClient:   nitroRpcClient,
 	}
