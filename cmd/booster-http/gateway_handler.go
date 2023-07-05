@@ -58,42 +58,57 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if h.nitroRpcClient != nil {
+		// This the payment we expect to receive for the file.
+		const expectedPayment = int64(100)
 
 		params, _ := url.ParseQuery(r.URL.RawQuery)
-		if !params.Has("channelId") {
-			webError(w, fmt.Errorf("a valid channel id must be provided"), http.StatusPaymentRequired)
+
+		v, err := parseVoucher(params)
+		if err != nil {
+			webError(w, fmt.Errorf("could not parse voucher: %w", err), http.StatusBadRequest)
 			return
 		}
-		rawChId := params.Get("channelId")
-		rawAmt := params.Get("amount")
-		amount := big.NewInt(0)
-		amount.SetString(rawAmt, 10)
-		rawSignature := params.Get("signature")
 
-		v := payments.Voucher{
-			ChannelId: types.Destination(common.HexToHash(rawChId)),
-			Amount:    amount,
-			Signature: crypto.SplitSignature(hexutil.MustDecode(rawSignature)),
-		}
+		total, received := h.nitroRpcClient.ReceiveVoucher(v)
 
-		fmt.Printf("Constructed voucher %+v\n", v)
-		_, received := h.nitroRpcClient.ReceiveVoucher(v)
-		fmt.Printf("Received %+v\n", received)
-		const expectedAmount = int64(100)
-		// TODO: It seems like the delta is coming back nil??
+		// TODO: The received value can be nil if we receive a stale voucher.
 		if received == nil {
-			webError(w, fmt.Errorf("nil received"), http.StatusPaymentRequired)
+			webError(w, fmt.Errorf("stale voucher received with amount %d, we already have a voucher with amount %d", v.Amount.Uint64(), total), http.StatusPaymentRequired)
 			return
 		}
 
-		if received.Cmp(big.NewInt(expectedAmount)) < 0 {
-
-			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedAmount, received.Uint64()), http.StatusPaymentRequired)
+		if received.Cmp(big.NewInt(expectedPayment)) < 0 {
+			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedPayment, received.Uint64()), http.StatusPaymentRequired)
 			return
 		}
 	}
 
 	h.gwh.ServeHTTP(w, r)
+}
+
+// parseVoucher takes in an a collection of query params and parses out a voucher.
+func parseVoucher(params url.Values) (payments.Voucher, error) {
+	if !params.Has("channelId") {
+		return payments.Voucher{}, fmt.Errorf("a valid channel id must be provided")
+	}
+	if !params.Has("amount") {
+		return payments.Voucher{}, fmt.Errorf("a valid amount must be provided")
+	}
+	if !params.Has("signature") {
+		return payments.Voucher{}, fmt.Errorf("a valid signature must be provided")
+	}
+	rawChId := params.Get("channelId")
+	rawAmt := params.Get("amount")
+	amount := big.NewInt(0)
+	amount.SetString(rawAmt, 10)
+	rawSignature := params.Get("signature")
+
+	v := payments.Voucher{
+		ChannelId: types.Destination(common.HexToHash(rawChId)),
+		Amount:    amount,
+		Signature: crypto.SplitSignature(hexutil.MustDecode(rawSignature)),
+	}
+	return v, nil
 }
 
 func webError(w http.ResponseWriter, err error, code int) {
