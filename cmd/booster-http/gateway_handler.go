@@ -59,7 +59,7 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if h.nitroRpcClient != nil {
 		// This the payment we expect to receive for the file.
-		const expectedPayment = int64(100)
+		const expectedPayment = int64(5)
 
 		params, _ := url.ParseQuery(r.URL.RawQuery)
 
