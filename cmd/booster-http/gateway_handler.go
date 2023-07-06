@@ -68,7 +68,7 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			webError(w, fmt.Errorf("could not parse voucher: %w", err), http.StatusBadRequest)
 			return
 		}
-
+		fmt.Printf("Parsed voucher: %+v\n", v)
 		total, received := h.nitroRpcClient.ReceiveVoucher(v)
 
 		// TODO: The received value can be nil if we receive a stale voucher.
@@ -76,6 +76,7 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			webError(w, fmt.Errorf("stale voucher received with amount %d, we already have a voucher with amount %d", v.Amount.Uint64(), total), http.StatusPaymentRequired)
 			return
 		}
+		fmt.Printf("Payment received from voucher %d\n", received.Uint64())
 
 		if received.Cmp(big.NewInt(expectedPayment)) < 0 {
 			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedPayment, received.Uint64()), http.StatusPaymentRequired)
