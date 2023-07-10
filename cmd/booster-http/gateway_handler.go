@@ -69,11 +69,11 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Printf("Parsed voucher: %+v\n", v)
-		total, received := h.nitroRpcClient.ReceiveVoucher(v)
+		_, received := h.nitroRpcClient.ReceiveVoucher(v)
 
-		// TODO: The received value can be nil if we receive a stale voucher.
+		// TODO: A nil value indicates an error with the voucher. We should update to the latest go-nitro which properly returns the error.
 		if received == nil {
-			webError(w, fmt.Errorf("stale voucher received with amount %d, we already have a voucher with amount %d", v.Amount.Uint64(), total), http.StatusPaymentRequired)
+			webError(w, fmt.Errorf("invalid voucher received %+v", v), http.StatusBadRequest)
 			return
 		}
 		fmt.Printf("Payment received from voucher %d\n", received.Uint64())
