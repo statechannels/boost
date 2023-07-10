@@ -18,7 +18,7 @@ replace github.com/libp2p/go-libp2p v0.27.0 => github.com/libp2p/go-libp2p v0.26
 
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
-	github.com/BurntSushi/toml v1.2.1
+	github.com/BurntSushi/toml v1.3.2
 	github.com/alecthomas/jsonschema v0.0.0-20200530073317-71f438968921
 	github.com/benbjohnson/clock v1.3.5
 	github.com/buger/goterm v1.0.3
@@ -346,7 +346,7 @@ require (
 	github.com/ipfs/boxo v0.10.1
 	github.com/ipfs/kubo v0.21.0-rc1
 	github.com/ipni/go-libipni v0.0.8
-	github.com/statechannels/go-nitro v0.0.0-20230621200904-bfeff118bbbb
+	github.com/statechannels/go-nitro v0.0.0-20230705221739-f11101193ac4
 )
 
 require (
