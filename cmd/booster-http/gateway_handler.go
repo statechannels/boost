@@ -69,18 +69,17 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// delta is the change in the channel balance caused by adding this voucher.
-		_, delta := h.nitroRpcClient.ReceiveVoucher(v)
+		s, err := h.nitroRpcClient.ReceiveVoucher(v)
 
-		// TODO: A nil value indicates an error with the voucher. We should update to the latest go-nitro which properly returns the error.
-		if delta == nil {
-			webError(w, fmt.Errorf("invalid voucher received %+v", v), http.StatusBadRequest)
+		if err != nil {
+			webError(w, fmt.Errorf("error processing voucher %w", err), http.StatusBadRequest)
 			return
 		}
 
-		// If the voucher resulted in a payment less than the expected payment, return an error.
-		if delta.Cmp(big.NewInt(expectedPayment)) < 0 {
-			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedPayment, delta.Uint64()), http.StatusPaymentRequired)
+		// s.Delta is amount our balance increases by adding this voucher
+		// AKA the payment amount we received in the request for this file
+		if s.Delta.Cmp(big.NewInt(expectedPayment)) < 0 {
+			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedPayment, s.Delta.Uint64()), http.StatusPaymentRequired)
 			return
 		}
 	}
