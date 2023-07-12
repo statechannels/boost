@@ -293,6 +293,15 @@ make devnet/down
 
 rm -rf ~/.cache/filecoin-proof-parameters
 ```
+### Nitro payment integration
+
+To enable nitro payment integration for `booster-http` the `BOOSTER_HTTP_NITRO_ENABLED` env var must be set. The env var `BOOSTER_HTTP_NITRO_ENDPOINT` can also be set to specify a specific nitro RPC endpoint; if its not set a default endpoint of `host.docker.internal:4007/api/v1` is used.
+
+```bash
+docker stop m booster-http
+docker rm booster-http
+BOOSTER_HTTP_NITRO_ENABLED=true BOOSTER_HTTP_NITRO_ENDPOINT=someurl:4007/api/v1  docker compose -f ./docker/devnet/docker-compose.yaml up -d
+```
 
 ## License
 
