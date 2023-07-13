@@ -80,6 +80,8 @@ services:
       - BOOST_PATH=/var/lib/boost
       - LOTUS_PATH=/var/lib/lotus
       - LOTUS_MINER_PATH=/var/lib/lotus-miner
+      - BOOSTER_HTTP_NITRO_ENABLED=${BOOSTER_HTTP_NITRO_ENABLED:-false}
+      - BOOSTER_HTTP_NITRO_ENDPOINT=${BOOSTER_HTTP_NITRO_ENDPOINT:-host.docker.internal:4007/api/v1}
     restart: unless-stopped
     logging: *default-logging
     volumes:
