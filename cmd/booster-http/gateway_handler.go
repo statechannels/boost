@@ -2,19 +2,30 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 	"mime"
 	"net/http"
+	"net/url"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ipfs/boxo/gateway"
+	"github.com/statechannels/go-nitro/rpc"
+	"github.com/statechannels/go-nitro/types"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
+
+	"github.com/statechannels/go-nitro/crypto"
+	"github.com/statechannels/go-nitro/payments"
 )
 
 type gatewayHandler struct {
 	gwh              http.Handler
 	supportedFormats map[string]struct{}
+	nitroRpcClient   *rpc.RpcClient
 }
 
-func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string) http.Handler {
+func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string, nitroRpcClient *rpc.RpcClient) http.Handler {
 	headers := map[string][]string{}
 	gateway.AddAccessControlHeaders(headers)
 
@@ -23,12 +34,11 @@ func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string) htt
 		fmtsMap[f] = struct{}{}
 	}
 
+	// TODO: For the integration demo, we need to allow CORS requests to the gateway.
 	return &gatewayHandler{
-		gwh: gateway.NewHandler(gateway.Config{
-			Headers:               headers,
-			DeserializedResponses: true,
-		}, gw),
+		gwh:              &corsHandler{gateway.NewHandler(gateway.Config{Headers: headers, DeserializedResponses: true}, gw)},
 		supportedFormats: fmtsMap,
+		nitroRpcClient:   nitroRpcClient,
 	}
 }
 
@@ -47,10 +57,66 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.nitroRpcClient != nil {
+		// This the payment we expect to receive for the file.
+		const expectedPayment = int64(5)
+
+		params, _ := url.ParseQuery(r.URL.RawQuery)
+
+		v, err := parseVoucher(params)
+		if err != nil {
+			webError(w, fmt.Errorf("could not parse voucher: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		s, err := h.nitroRpcClient.ReceiveVoucher(v)
+
+		if err != nil {
+			webError(w, fmt.Errorf("error processing voucher %w", err), http.StatusBadRequest)
+			return
+		}
+
+		// s.Delta is amount our balance increases by adding this voucher
+		// AKA the payment amount we received in the request for this file
+		if s.Delta.Cmp(big.NewInt(expectedPayment)) < 0 {
+			webError(w, fmt.Errorf("payment of %d required, the voucher only resulted in a payment of %d", expectedPayment, s.Delta.Uint64()), http.StatusPaymentRequired)
+			return
+		}
+	}
+
 	h.gwh.ServeHTTP(w, r)
 }
 
+// parseVoucher takes in an a collection of query params and parses out a voucher.
+func parseVoucher(params url.Values) (payments.Voucher, error) {
+	if !params.Has("channelId") {
+		return payments.Voucher{}, fmt.Errorf("a valid channel id must be provided")
+	}
+	if !params.Has("amount") {
+		return payments.Voucher{}, fmt.Errorf("a valid amount must be provided")
+	}
+	if !params.Has("signature") {
+		return payments.Voucher{}, fmt.Errorf("a valid signature must be provided")
+	}
+	rawChId := params.Get("channelId")
+	rawAmt := params.Get("amount")
+	amount := big.NewInt(0)
+	amount.SetString(rawAmt, 10)
+	rawSignature := params.Get("signature")
+
+	v := payments.Voucher{
+		ChannelId: types.Destination(common.HexToHash(rawChId)),
+		Amount:    amount,
+		Signature: crypto.SplitSignature(hexutil.MustDecode(rawSignature)),
+	}
+	return v, nil
+}
+
 func webError(w http.ResponseWriter, err error, code int) {
+	// TODO: This is a hack to allow CORS requests to the gateway for the boost integration demo.
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	fmt.Printf("ERROR CODE %d\n", code)
 	http.Error(w, err.Error(), code)
 }
 

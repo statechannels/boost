@@ -26,6 +26,7 @@ import (
 	"github.com/ipfs/boxo/gateway"
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore"
+	nrpc "github.com/statechannels/go-nitro/rpc"
 	"go.opencensus.io/stats"
 )
 
@@ -53,6 +54,8 @@ type HttpServer struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	server *http.Server
+
+	nitroRpcClient *nrpc.RpcClient
 }
 
 type HttpServerApi interface {
@@ -67,11 +70,26 @@ type HttpServerOptions struct {
 	SupportedResponseFormats []string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions) *HttpServer {
+type NitroOptions struct {
+	Enabled  bool
+	Endpoint string
+}
+
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	return &HttpServer{path: path, listenAddr: listenAddr, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts)}
+	var rpcClient *nrpc.RpcClient
+	var err error
+	if nitroOpts != nil && nitroOpts.Enabled {
+
+		rpcClient, err = nrpc.NewHttpRpcClient(nitroOpts.Endpoint)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
+
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -96,7 +114,7 @@ func (s *HttpServer) Start(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("creating blocks gateway: %w", err)
 		}
-		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats))
+		handler.Handle(s.ipfsBasePath(), newGatewayHandler(gw, s.opts.SupportedResponseFormats, s.nitroRpcClient))
 	}
 
 	handler.HandleFunc("/", s.handleIndex)
@@ -156,6 +174,7 @@ func (s *HttpServer) handleByPieceCid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Update to parse out multiple url params
 	pieceCidStr := r.URL.Path[prefixLen:]
 	pieceCid, err := cid.Parse(pieceCidStr)
 	if err != nil {

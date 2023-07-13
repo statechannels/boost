@@ -34,6 +34,17 @@ var runCmd = &cli.Command{
 	Before: before,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
+			Name:  "nitro-enabled",
+			Usage: "enables nitro micro payments",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:  "nitro-endpoint",
+			Usage: "the endpoint for the nitro server",
+			Value: "host.docker.internal:4007/api/v1",
+		},
+
+		&cli.BoolFlag{
 			Name:  "pprof",
 			Usage: "run pprof web server on localhost:6070",
 		},
@@ -204,6 +215,12 @@ var runCmd = &cli.Command{
 			filtered := filters.NewFilteredBlockstore(rbs, multiFilter)
 			opts.Blockstore = filtered
 		}
+
+		nitroOpts := &NitroOptions{
+			Enabled:  cctx.Bool("nitro-enabled"),
+			Endpoint: cctx.String("nitro-endpoint"),
+		}
+
 		sapi := serverApi{ctx: ctx, bapi: bapi, sa: sa}
 		server := NewHttpServer(
 			cctx.String("base-path"),
@@ -211,6 +228,7 @@ var runCmd = &cli.Command{
 			cctx.Int("port"),
 			sapi,
 			opts,
+			nitroOpts,
 		)
 
 		// Start the server
