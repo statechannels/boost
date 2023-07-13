@@ -6,7 +6,7 @@ executors:
   golang:
     docker:
       - image: cimg/go:1.19.7
-    resource_class: 2xlarge
+    resource_class: xlarge
   ubuntu:
     docker:
       - image: ubuntu:20.04
@@ -266,7 +266,7 @@ workflows:
   ci:
     jobs:
       - lint-all:
-          concurrency: "16"   # expend all docker 2xlarge CPUs.
+          concurrency: "8"   # expend all docker 2xlarge CPUs.
       - mod-tidy-check
       - gofmt
       - cbor-check
