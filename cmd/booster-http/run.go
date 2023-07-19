@@ -25,6 +25,7 @@ import (
 	"github.com/filecoin-project/lotus/markets/dagstore"
 	"github.com/ipfs/go-cid"
 	"github.com/mitchellh/go-homedir"
+	nrpc "github.com/statechannels/go-nitro/rpc"
 	"github.com/urfave/cli/v2"
 )
 
@@ -216,19 +217,24 @@ var runCmd = &cli.Command{
 			opts.Blockstore = filtered
 		}
 
-		nitroOpts := &NitroOptions{
-			Enabled:  cctx.Bool("nitro-enabled"),
-			Endpoint: cctx.String("nitro-endpoint"),
+		sapi := serverApi{ctx: ctx, bapi: bapi, sa: sa}
+		var nitroAPI nrpc.RpcClientApi
+
+		if cctx.Bool("nitro-enabled") {
+			var err error
+			nitroAPI, err = nrpc.NewHttpRpcClient(cctx.String("nitro-endpoint"))
+			if err != nil {
+				return fmt.Errorf("error creating nitro API client: %w", err)
+			}
 		}
 
-		sapi := serverApi{ctx: ctx, bapi: bapi, sa: sa}
 		server := NewHttpServer(
 			cctx.String("base-path"),
 			cctx.String("address"),
 			cctx.Int("port"),
 			sapi,
+			nitroAPI,
 			opts,
-			nitroOpts,
 		)
 
 		// Start the server
@@ -315,7 +321,7 @@ func createRepoDir(repoDir string) (string, error) {
 	if repoDir == "" {
 		return "", fmt.Errorf("%s is a required flag", FlagRepo.Name)
 	}
-	return repoDir, os.MkdirAll(repoDir, 0744)
+	return repoDir, os.MkdirAll(repoDir, 0o744)
 }
 
 type serverApi struct {

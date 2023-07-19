@@ -76,20 +76,12 @@ type NitroOptions struct {
 	Endpoint string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, nitroApi nrpc.RpcClientApi, opts *HttpServerOptions) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	var rpcClient nrpc.RpcClientApi
-	var err error
-	if nitroOpts != nil && nitroOpts.Enabled {
 
-		rpcClient, err = nrpc.NewHttpRpcClient(nitroOpts.Endpoint)
-		if err != nil {
-			panic(err)
-		}
-	}
-	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
+	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: nitroApi}
 }
 
 func (s *HttpServer) pieceBasePath() string {
