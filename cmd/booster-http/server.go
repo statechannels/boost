@@ -31,7 +31,7 @@ import (
 )
 
 //go:generate go run github.com/golang/mock/mockgen -destination=mocks/mock_booster_http.go -package=mocks_booster_http -source=server.go HttpServerApi,serverApi
-//go:generate  go run github.com/golang/mock/mockgen -destination=mocks/mock_nitro_rpc.go github.com/statechannels/go-nitro/rpc  RpcClientApi
+//go:generate  go run github.com/golang/mock/mockgen -destination=mocks/mock_nitro_rpc.go -package=mocks_booster_http github.com/statechannels/go-nitro/rpc  RpcClientApi
 
 var ErrNotFound = errors.New("not found")
 
