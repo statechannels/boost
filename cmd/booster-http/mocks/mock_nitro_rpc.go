@@ -19,31 +19,31 @@ import (
 	types "github.com/statechannels/go-nitro/types"
 )
 
-// MockRpcClientApi is a mock of RpcClientApi interface.
-type MockRpcClientApi struct {
+// MockNitroRpcApi is a mock of RpcClientApi interface.
+type MockNitroRpcApi struct {
 	ctrl     *gomock.Controller
-	recorder *MockRpcClientApiMockRecorder
+	recorder *MockNitroRpcApiMockRecorder
 }
 
-// MockRpcClientApiMockRecorder is the mock recorder for MockRpcClientApi.
-type MockRpcClientApiMockRecorder struct {
-	mock *MockRpcClientApi
+// MockNitroRpcApiMockRecorder is the mock recorder for MockNitroRpcApi.
+type MockNitroRpcApiMockRecorder struct {
+	mock *MockNitroRpcApi
 }
 
-// NewMockRpcClientApi creates a new mock instance.
-func NewMockRpcClientApi(ctrl *gomock.Controller) *MockRpcClientApi {
-	mock := &MockRpcClientApi{ctrl: ctrl}
-	mock.recorder = &MockRpcClientApiMockRecorder{mock}
+// NewMockNitroRpcApi creates a new mock instance.
+func NewMockNitroRpcApi(ctrl *gomock.Controller) *MockNitroRpcApi {
+	mock := &MockNitroRpcApi{ctrl: ctrl}
+	mock.recorder = &MockNitroRpcApiMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRpcClientApi) EXPECT() *MockRpcClientApiMockRecorder {
+func (m *MockNitroRpcApi) EXPECT() *MockNitroRpcApiMockRecorder {
 	return m.recorder
 }
 
 // Address mocks base method.
-func (m *MockRpcClientApi) Address() (common.Address, error) {
+func (m *MockNitroRpcApi) Address() (common.Address, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Address")
 	ret0, _ := ret[0].(common.Address)
@@ -52,13 +52,13 @@ func (m *MockRpcClientApi) Address() (common.Address, error) {
 }
 
 // Address indicates an expected call of Address.
-func (mr *MockRpcClientApiMockRecorder) Address() *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) Address() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Address", reflect.TypeOf((*MockRpcClientApi)(nil).Address))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Address", reflect.TypeOf((*MockNitroRpcApi)(nil).Address))
 }
 
 // Close mocks base method.
-func (m *MockRpcClientApi) Close() error {
+func (m *MockNitroRpcApi) Close() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
 	ret0, _ := ret[0].(error)
@@ -66,13 +66,13 @@ func (m *MockRpcClientApi) Close() error {
 }
 
 // Close indicates an expected call of Close.
-func (mr *MockRpcClientApiMockRecorder) Close() *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) Close() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRpcClientApi)(nil).Close))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockNitroRpcApi)(nil).Close))
 }
 
 // CloseLedgerChannel mocks base method.
-func (m *MockRpcClientApi) CloseLedgerChannel(arg0 types.Destination) (protocols.ObjectiveId, error) {
+func (m *MockNitroRpcApi) CloseLedgerChannel(arg0 types.Destination) (protocols.ObjectiveId, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CloseLedgerChannel", arg0)
 	ret0, _ := ret[0].(protocols.ObjectiveId)
@@ -81,13 +81,13 @@ func (m *MockRpcClientApi) CloseLedgerChannel(arg0 types.Destination) (protocols
 }
 
 // CloseLedgerChannel indicates an expected call of CloseLedgerChannel.
-func (mr *MockRpcClientApiMockRecorder) CloseLedgerChannel(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) CloseLedgerChannel(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseLedgerChannel", reflect.TypeOf((*MockRpcClientApi)(nil).CloseLedgerChannel), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseLedgerChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).CloseLedgerChannel), arg0)
 }
 
 // ClosePaymentChannel mocks base method.
-func (m *MockRpcClientApi) ClosePaymentChannel(arg0 types.Destination) (protocols.ObjectiveId, error) {
+func (m *MockNitroRpcApi) ClosePaymentChannel(arg0 types.Destination) (protocols.ObjectiveId, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ClosePaymentChannel", arg0)
 	ret0, _ := ret[0].(protocols.ObjectiveId)
@@ -96,13 +96,13 @@ func (m *MockRpcClientApi) ClosePaymentChannel(arg0 types.Destination) (protocol
 }
 
 // ClosePaymentChannel indicates an expected call of ClosePaymentChannel.
-func (mr *MockRpcClientApiMockRecorder) ClosePaymentChannel(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) ClosePaymentChannel(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClosePaymentChannel", reflect.TypeOf((*MockRpcClientApi)(nil).ClosePaymentChannel), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClosePaymentChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).ClosePaymentChannel), arg0)
 }
 
 // CreateLedgerChannel mocks base method.
-func (m *MockRpcClientApi) CreateLedgerChannel(arg0 common.Address, arg1 uint32, arg2 outcome.Exit) (directfund.ObjectiveResponse, error) {
+func (m *MockNitroRpcApi) CreateLedgerChannel(arg0 common.Address, arg1 uint32, arg2 outcome.Exit) (directfund.ObjectiveResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateLedgerChannel", arg0, arg1, arg2)
 	ret0, _ := ret[0].(directfund.ObjectiveResponse)
@@ -111,13 +111,13 @@ func (m *MockRpcClientApi) CreateLedgerChannel(arg0 common.Address, arg1 uint32,
 }
 
 // CreateLedgerChannel indicates an expected call of CreateLedgerChannel.
-func (mr *MockRpcClientApiMockRecorder) CreateLedgerChannel(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) CreateLedgerChannel(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLedgerChannel", reflect.TypeOf((*MockRpcClientApi)(nil).CreateLedgerChannel), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLedgerChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).CreateLedgerChannel), arg0, arg1, arg2)
 }
 
 // CreatePaymentChannel mocks base method.
-func (m *MockRpcClientApi) CreatePaymentChannel(arg0 []common.Address, arg1 common.Address, arg2 uint32, arg3 outcome.Exit) (virtualfund.ObjectiveResponse, error) {
+func (m *MockNitroRpcApi) CreatePaymentChannel(arg0 []common.Address, arg1 common.Address, arg2 uint32, arg3 outcome.Exit) (virtualfund.ObjectiveResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePaymentChannel", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(virtualfund.ObjectiveResponse)
@@ -126,13 +126,13 @@ func (m *MockRpcClientApi) CreatePaymentChannel(arg0 []common.Address, arg1 comm
 }
 
 // CreatePaymentChannel indicates an expected call of CreatePaymentChannel.
-func (mr *MockRpcClientApiMockRecorder) CreatePaymentChannel(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) CreatePaymentChannel(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePaymentChannel", reflect.TypeOf((*MockRpcClientApi)(nil).CreatePaymentChannel), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePaymentChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).CreatePaymentChannel), arg0, arg1, arg2, arg3)
 }
 
 // CreateVoucher mocks base method.
-func (m *MockRpcClientApi) CreateVoucher(arg0 types.Destination, arg1 uint64) (payments.Voucher, error) {
+func (m *MockNitroRpcApi) CreateVoucher(arg0 types.Destination, arg1 uint64) (payments.Voucher, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateVoucher", arg0, arg1)
 	ret0, _ := ret[0].(payments.Voucher)
@@ -141,13 +141,13 @@ func (m *MockRpcClientApi) CreateVoucher(arg0 types.Destination, arg1 uint64) (p
 }
 
 // CreateVoucher indicates an expected call of CreateVoucher.
-func (mr *MockRpcClientApiMockRecorder) CreateVoucher(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) CreateVoucher(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVoucher", reflect.TypeOf((*MockRpcClientApi)(nil).CreateVoucher), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateVoucher", reflect.TypeOf((*MockNitroRpcApi)(nil).CreateVoucher), arg0, arg1)
 }
 
 // GetAllLedgerChannels mocks base method.
-func (m *MockRpcClientApi) GetAllLedgerChannels() ([]query.LedgerChannelInfo, error) {
+func (m *MockNitroRpcApi) GetAllLedgerChannels() ([]query.LedgerChannelInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllLedgerChannels")
 	ret0, _ := ret[0].([]query.LedgerChannelInfo)
@@ -156,13 +156,13 @@ func (m *MockRpcClientApi) GetAllLedgerChannels() ([]query.LedgerChannelInfo, er
 }
 
 // GetAllLedgerChannels indicates an expected call of GetAllLedgerChannels.
-func (mr *MockRpcClientApiMockRecorder) GetAllLedgerChannels() *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) GetAllLedgerChannels() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLedgerChannels", reflect.TypeOf((*MockRpcClientApi)(nil).GetAllLedgerChannels))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLedgerChannels", reflect.TypeOf((*MockNitroRpcApi)(nil).GetAllLedgerChannels))
 }
 
 // GetLedgerChannel mocks base method.
-func (m *MockRpcClientApi) GetLedgerChannel(arg0 types.Destination) (query.LedgerChannelInfo, error) {
+func (m *MockNitroRpcApi) GetLedgerChannel(arg0 types.Destination) (query.LedgerChannelInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLedgerChannel", arg0)
 	ret0, _ := ret[0].(query.LedgerChannelInfo)
@@ -171,13 +171,13 @@ func (m *MockRpcClientApi) GetLedgerChannel(arg0 types.Destination) (query.Ledge
 }
 
 // GetLedgerChannel indicates an expected call of GetLedgerChannel.
-func (mr *MockRpcClientApiMockRecorder) GetLedgerChannel(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) GetLedgerChannel(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLedgerChannel", reflect.TypeOf((*MockRpcClientApi)(nil).GetLedgerChannel), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLedgerChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).GetLedgerChannel), arg0)
 }
 
 // GetPaymentChannel mocks base method.
-func (m *MockRpcClientApi) GetPaymentChannel(arg0 types.Destination) (query.PaymentChannelInfo, error) {
+func (m *MockNitroRpcApi) GetPaymentChannel(arg0 types.Destination) (query.PaymentChannelInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPaymentChannel", arg0)
 	ret0, _ := ret[0].(query.PaymentChannelInfo)
@@ -186,13 +186,13 @@ func (m *MockRpcClientApi) GetPaymentChannel(arg0 types.Destination) (query.Paym
 }
 
 // GetPaymentChannel indicates an expected call of GetPaymentChannel.
-func (mr *MockRpcClientApiMockRecorder) GetPaymentChannel(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) GetPaymentChannel(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentChannel", reflect.TypeOf((*MockRpcClientApi)(nil).GetPaymentChannel), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentChannel", reflect.TypeOf((*MockNitroRpcApi)(nil).GetPaymentChannel), arg0)
 }
 
 // GetPaymentChannelsByLedger mocks base method.
-func (m *MockRpcClientApi) GetPaymentChannelsByLedger(arg0 types.Destination) ([]query.PaymentChannelInfo, error) {
+func (m *MockNitroRpcApi) GetPaymentChannelsByLedger(arg0 types.Destination) ([]query.PaymentChannelInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPaymentChannelsByLedger", arg0)
 	ret0, _ := ret[0].([]query.PaymentChannelInfo)
@@ -201,13 +201,13 @@ func (m *MockRpcClientApi) GetPaymentChannelsByLedger(arg0 types.Destination) ([
 }
 
 // GetPaymentChannelsByLedger indicates an expected call of GetPaymentChannelsByLedger.
-func (mr *MockRpcClientApiMockRecorder) GetPaymentChannelsByLedger(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) GetPaymentChannelsByLedger(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentChannelsByLedger", reflect.TypeOf((*MockRpcClientApi)(nil).GetPaymentChannelsByLedger), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPaymentChannelsByLedger", reflect.TypeOf((*MockNitroRpcApi)(nil).GetPaymentChannelsByLedger), arg0)
 }
 
 // LedgerChannelUpdatesChan mocks base method.
-func (m *MockRpcClientApi) LedgerChannelUpdatesChan(arg0 types.Destination) <-chan query.LedgerChannelInfo {
+func (m *MockNitroRpcApi) LedgerChannelUpdatesChan(arg0 types.Destination) <-chan query.LedgerChannelInfo {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "LedgerChannelUpdatesChan", arg0)
 	ret0, _ := ret[0].(<-chan query.LedgerChannelInfo)
@@ -215,13 +215,13 @@ func (m *MockRpcClientApi) LedgerChannelUpdatesChan(arg0 types.Destination) <-ch
 }
 
 // LedgerChannelUpdatesChan indicates an expected call of LedgerChannelUpdatesChan.
-func (mr *MockRpcClientApiMockRecorder) LedgerChannelUpdatesChan(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) LedgerChannelUpdatesChan(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LedgerChannelUpdatesChan", reflect.TypeOf((*MockRpcClientApi)(nil).LedgerChannelUpdatesChan), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LedgerChannelUpdatesChan", reflect.TypeOf((*MockNitroRpcApi)(nil).LedgerChannelUpdatesChan), arg0)
 }
 
 // ObjectiveCompleteChan mocks base method.
-func (m *MockRpcClientApi) ObjectiveCompleteChan(arg0 protocols.ObjectiveId) <-chan struct{} {
+func (m *MockNitroRpcApi) ObjectiveCompleteChan(arg0 protocols.ObjectiveId) <-chan struct{} {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ObjectiveCompleteChan", arg0)
 	ret0, _ := ret[0].(<-chan struct{})
@@ -229,13 +229,13 @@ func (m *MockRpcClientApi) ObjectiveCompleteChan(arg0 protocols.ObjectiveId) <-c
 }
 
 // ObjectiveCompleteChan indicates an expected call of ObjectiveCompleteChan.
-func (mr *MockRpcClientApiMockRecorder) ObjectiveCompleteChan(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) ObjectiveCompleteChan(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ObjectiveCompleteChan", reflect.TypeOf((*MockRpcClientApi)(nil).ObjectiveCompleteChan), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ObjectiveCompleteChan", reflect.TypeOf((*MockNitroRpcApi)(nil).ObjectiveCompleteChan), arg0)
 }
 
 // Pay mocks base method.
-func (m *MockRpcClientApi) Pay(arg0 types.Destination, arg1 uint64) (serde.PaymentRequest, error) {
+func (m *MockNitroRpcApi) Pay(arg0 types.Destination, arg1 uint64) (serde.PaymentRequest, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Pay", arg0, arg1)
 	ret0, _ := ret[0].(serde.PaymentRequest)
@@ -244,13 +244,13 @@ func (m *MockRpcClientApi) Pay(arg0 types.Destination, arg1 uint64) (serde.Payme
 }
 
 // Pay indicates an expected call of Pay.
-func (mr *MockRpcClientApiMockRecorder) Pay(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) Pay(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Pay", reflect.TypeOf((*MockRpcClientApi)(nil).Pay), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Pay", reflect.TypeOf((*MockNitroRpcApi)(nil).Pay), arg0, arg1)
 }
 
 // PaymentChannelUpdatesChan mocks base method.
-func (m *MockRpcClientApi) PaymentChannelUpdatesChan(arg0 types.Destination) <-chan query.PaymentChannelInfo {
+func (m *MockNitroRpcApi) PaymentChannelUpdatesChan(arg0 types.Destination) <-chan query.PaymentChannelInfo {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PaymentChannelUpdatesChan", arg0)
 	ret0, _ := ret[0].(<-chan query.PaymentChannelInfo)
@@ -258,13 +258,13 @@ func (m *MockRpcClientApi) PaymentChannelUpdatesChan(arg0 types.Destination) <-c
 }
 
 // PaymentChannelUpdatesChan indicates an expected call of PaymentChannelUpdatesChan.
-func (mr *MockRpcClientApiMockRecorder) PaymentChannelUpdatesChan(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) PaymentChannelUpdatesChan(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaymentChannelUpdatesChan", reflect.TypeOf((*MockRpcClientApi)(nil).PaymentChannelUpdatesChan), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaymentChannelUpdatesChan", reflect.TypeOf((*MockNitroRpcApi)(nil).PaymentChannelUpdatesChan), arg0)
 }
 
 // ReceiveVoucher mocks base method.
-func (m *MockRpcClientApi) ReceiveVoucher(arg0 payments.Voucher) (payments.ReceiveVoucherSummary, error) {
+func (m *MockNitroRpcApi) ReceiveVoucher(arg0 payments.Voucher) (payments.ReceiveVoucherSummary, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReceiveVoucher", arg0)
 	ret0, _ := ret[0].(payments.ReceiveVoucherSummary)
@@ -273,7 +273,7 @@ func (m *MockRpcClientApi) ReceiveVoucher(arg0 payments.Voucher) (payments.Recei
 }
 
 // ReceiveVoucher indicates an expected call of ReceiveVoucher.
-func (mr *MockRpcClientApiMockRecorder) ReceiveVoucher(arg0 interface{}) *gomock.Call {
+func (mr *MockNitroRpcApiMockRecorder) ReceiveVoucher(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReceiveVoucher", reflect.TypeOf((*MockRpcClientApi)(nil).ReceiveVoucher), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReceiveVoucher", reflect.TypeOf((*MockNitroRpcApi)(nil).ReceiveVoucher), arg0)
 }
