@@ -55,7 +55,7 @@ type HttpServer struct {
 	cancel context.CancelFunc
 	server *http.Server
 
-	nitroRpcClient *nrpc.RpcClient
+	nitroRpcClient nrpc.RpcClientApi
 }
 
 type HttpServerApi interface {
@@ -79,7 +79,7 @@ func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, 
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	var rpcClient *nrpc.RpcClient
+	var rpcClient nrpc.RpcClientApi
 	var err error
 	if nitroOpts != nil && nitroOpts.Enabled {
 
@@ -89,7 +89,6 @@ func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, 
 		}
 	}
 	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
-
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -222,7 +221,7 @@ func serveContent(w http.ResponseWriter, r *http.Request, content io.ReadSeeker)
 		err = e
 	}}
 
-	writer = writeErrWatcher //Need writeErrWatcher to be of type writeErrorWatcher for addCommas()
+	writer = writeErrWatcher // Need writeErrWatcher to be of type writeErrorWatcher for addCommas()
 
 	// Note that the last modified time is a constant value because the data
 	// in a piece identified by a cid will never change.

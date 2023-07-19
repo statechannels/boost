@@ -22,10 +22,10 @@ import (
 type gatewayHandler struct {
 	gwh              http.Handler
 	supportedFormats map[string]struct{}
-	nitroRpcClient   *rpc.RpcClient
+	nitroRpcClient   rpc.RpcClientApi
 }
 
-func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string, nitroRpcClient *rpc.RpcClient) http.Handler {
+func newGatewayHandler(gw *gateway.BlocksBackend, supportedFormats []string, nitroRpcClient rpc.RpcClientApi) http.Handler {
 	headers := map[string][]string{}
 	gateway.AddAccessControlHeaders(headers)
 
@@ -70,7 +70,6 @@ func (h *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s, err := h.nitroRpcClient.ReceiveVoucher(v)
-
 		if err != nil {
 			webError(w, fmt.Errorf("error processing voucher %w", err), http.StatusBadRequest)
 			return
