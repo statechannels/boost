@@ -346,7 +346,7 @@ require (
 	github.com/ipfs/boxo v0.10.1
 	github.com/ipfs/kubo v0.21.0-rc1
 	github.com/ipni/go-libipni v0.0.8
-	github.com/statechannels/go-nitro v0.0.0-20230710223658-280d0225a9d8
+	github.com/statechannels/go-nitro v0.0.0-20230719201014-41ddb3b8b67f
 )
 
 require (

@@ -31,6 +31,7 @@ import (
 )
 
 //go:generate go run github.com/golang/mock/mockgen -destination=mocks/mock_booster_http.go -package=mocks_booster_http -source=server.go HttpServerApi,serverApi
+//go:generate go run github.com/golang/mock/mockgen -destination=mocks/mock_nitro_rpc.go -package=mocks_booster_http -mock_names=RpcClientApi=MockNitroRpcApi github.com/statechannels/go-nitro/rpc  RpcClientApi
 
 var ErrNotFound = errors.New("not found")
 
@@ -55,7 +56,7 @@ type HttpServer struct {
 	cancel context.CancelFunc
 	server *http.Server
 
-	nitroRpcClient *nrpc.RpcClient
+	nitroRpcClient nrpc.RpcClientApi
 }
 
 type HttpServerApi interface {
@@ -75,21 +76,12 @@ type NitroOptions struct {
 	Endpoint string
 }
 
-func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, opts *HttpServerOptions, nitroOpts *NitroOptions) *HttpServer {
+func NewHttpServer(path string, listenAddr string, port int, api HttpServerApi, nitroApi nrpc.RpcClientApi, opts *HttpServerOptions) *HttpServer {
 	if opts == nil {
 		opts = &HttpServerOptions{ServePieces: true}
 	}
-	var rpcClient *nrpc.RpcClient
-	var err error
-	if nitroOpts != nil && nitroOpts.Enabled {
 
-		rpcClient, err = nrpc.NewHttpRpcClient(nitroOpts.Endpoint)
-		if err != nil {
-			panic(err)
-		}
-	}
-	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: rpcClient}
-
+	return &HttpServer{path: path, port: port, api: api, opts: *opts, idxPage: parseTemplate(*opts), nitroRpcClient: nitroApi}
 }
 
 func (s *HttpServer) pieceBasePath() string {
@@ -222,7 +214,7 @@ func serveContent(w http.ResponseWriter, r *http.Request, content io.ReadSeeker)
 		err = e
 	}}
 
-	writer = writeErrWatcher //Need writeErrWatcher to be of type writeErrorWatcher for addCommas()
+	writer = writeErrWatcher // Need writeErrWatcher to be of type writeErrorWatcher for addCommas()
 
 	// Note that the last modified time is a constant value because the data
 	// in a piece identified by a cid will never change.
